@@ -39,23 +39,6 @@ l3.pack(padx=20, pady=4, anchor = "w")
 s1.pack(padx=20, pady=4, anchor = "w")
 
 
-# Motivation level scale
-motivation_var = DoubleVar()
-
-#_# Create scale
-motivation_scale = Scale( root, bg = '#ffffff', fg = '#000000', troughcolor = '#FFF4C2', 
-            length = '400', sliderlength = '40', variable = motivation_var, 
-           from_ = 1, to = 5, 
-           orient = HORIZONTAL)   
-
-#_# Create label
-motivation_label = Label(root, text = "Motivation level (0 is no motivation; 5 is high motivation)", anchor = "w", justify = LEFT)
-
-#_# Show scale and label
-motivation_label.pack(padx=20, pady=4, anchor = "w")
-motivation_scale.pack(padx=20, pady=4, anchor = "w")
-
-
 # Focus level scale
 focus_var = DoubleVar()
 
@@ -73,33 +56,24 @@ Focus_label.pack(padx=20, pady=4, anchor = "w")
 Focus_scale.pack(padx=20, pady=4, anchor = "w")
 
 
-# Energy level scale
-energy_var = DoubleVar()
-
-#_# Create scale
-Energy_scale = Scale( root, bg = '#ffffff', fg = '#000000', troughcolor = '#FFF4C2', 
-            length = '400', sliderlength = '40', variable = energy_var, 
-           from_ = 1, to = 5, 
-           orient = HORIZONTAL)   
-
-#_# Create label
-Energy_label = Label(root, text = "Energy level (0 is no motivation; 5 is high Energy)", anchor = "w", justify = LEFT)
-
-#_# Show scale and label
-Energy_label.pack(padx=20, pady=4, anchor = "w")
-Energy_scale.pack(padx=20, pady=4, anchor = "w")
-
-
-
 # Get scores with button click
+#_# Set colour suggestion
+
+theme = 1 # 1 is default yellow, 2 is blueberry, and 4 is grape
+
 def suggest_settings():
     stress_score = stress_var
-    motivation_score = motivation_var
     focus_score = focus_var
-    energy_score = energy_var
     
-    if stress_score == 1:
-        colour = 2
-
+    # high stress and high focus
+    if stress_score >= 3 and focus_score >= 3:
+        time = 45 # long time because of high focus
+        font = "mono" # 
+        theme = 3 # purple to reduce stress
+        
+    elif stress_score < 3 and focus_score >= 3:
+        time = 30
+        font = "crimson"
+        theme = 2
 
 root.mainloop()
