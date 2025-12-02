@@ -58,22 +58,58 @@ Focus_scale.pack(padx=20, pady=4, anchor = "w")
 
 # Get scores with button click
 #_# Set colour suggestion
-
+time = 15
+font = "fredoka"
 theme = 1 # 1 is default yellow, 2 is blueberry, and 4 is grape
 
 def suggest_settings():
-    stress_score = stress_var
-    focus_score = focus_var
+    stress_score = stress_var.get()
+    focus_score = focus_var.get()
     
     # high stress and high focus
     if stress_score >= 3 and focus_score >= 3:
-        time = 45 # long time because of high focus
-        font = "mono" # 
+        time = 45, # long time because of high focus
+        font = "mono", # 
         theme = 3 # purple to reduce stress
-        
+    
+    # low stress and high focus    
     elif stress_score < 3 and focus_score >= 3:
-        time = 30
-        font = "crimson"
+        time = 30,
+        font = "crimson",
         theme = 2
+    
+    # high stress and low focus
+    elif stress_score >= 3 and focus_score < 3:
+        time = 20,
+        font = "mono",
+        theme = 1
+        
+    # low stress and los focus
+    else:
+        time = 15,
+        font = "fredoka",
+        theme = 2
+
+#_# Button
+button = Button(root, 
+                   text="Get suggested timer", 
+                   command=suggest_settings,
+                   activebackground='#F5C856', 
+                   activeforeground='#F5C856',
+                   anchor="center",
+                   bg='#F5C856',
+                   disabledforeground='#F5C856',
+                   fg="black",
+                   font=("Arial", 12),
+                   height=2,
+                   highlightbackground='#F5C856',
+                   justify="center",
+                   overrelief="raised",
+                   padx=12,
+                   pady=8,
+                   width=20,
+                   wraplength=200)
+
+button.pack(padx=0, pady=20)
 
 root.mainloop()
