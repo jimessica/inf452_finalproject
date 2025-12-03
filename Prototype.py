@@ -21,7 +21,7 @@ from tkinter import *
 root = Tk()
 root.title("NeuroFlow")
 root.geometry("1400x850")
-root.configure(bg='#ffffff')
+root.configure(bg='#E8F0FF')  # soft blueberry background
 
 
 # Global variables
@@ -79,12 +79,12 @@ font_name_mapping = {"fredoka": "Fredoka", "crimson": "Crimson Text", "mono": "I
 
 
 # ==================== ASSESSMENT SCREEN ====================
-assessment_frame = Frame(root, bg='#ffffff')
+assessment_frame = Frame(root, bg='#E8F0FF')
 assessment_frame.pack(expand=True, fill=BOTH)
 
 
 # Top section with title and subtitle
-top_section = Frame(assessment_frame, bg='#ffffff')
+top_section = Frame(assessment_frame, bg='#E8F0FF')
 top_section.pack(pady=(60, 80))
 
 
@@ -93,7 +93,7 @@ assessment_title = Label(
     top_section,
     text="Welcome to NeuroFlow",
     font=("Fredoka One", 48, "bold"),
-    bg='#ffffff',
+    bg='#E8F0FF',
     fg='#000000'
 )
 assessment_title.pack()
@@ -104,14 +104,14 @@ subtitle = Label(
     top_section,
     text="Based on your mood, get a suggested study timer!",
     font=("Fredoka One", 18),
-    bg='#ffffff',
+    bg='#E8F0FF',
     fg='#000000'
 )
 subtitle.pack(pady=(10, 0))
 
 
 # Middle section - Current mood
-mood_section = Frame(assessment_frame, bg='#ffffff')
+mood_section = Frame(assessment_frame, bg='#E8F0FF')
 mood_section.pack(fill=BOTH, padx=80, pady=(0, 40))
 
 
@@ -119,7 +119,7 @@ mood_title = Label(
     mood_section,
     text="Current Mood",
     font=("Fredoka One", 16, "bold"),
-    bg='#ffffff',
+    bg='#E8F0FF',
     fg='#000000',
     anchor="w"
 )
@@ -134,16 +134,16 @@ stress_label = Label(
     anchor="w",
     justify=LEFT,
     font=("Fredoka One", 14),
-    bg='#ffffff',
+    bg='#E8F0FF',
     fg='#000000'
 )
 stress_label.pack(anchor="w", pady=(0, 8))
 
 stress_scale = Scale(
     mood_section,
-    bg='#F4D78E',
+    bg='#F6D36F',          # slightly richer banana
     fg='#000000',
-    troughcolor='#F4D78E',
+    troughcolor='#F6D36F',
     length=1200,
     sliderlength=160,
     variable=stress_var,
@@ -168,16 +168,16 @@ focus_label = Label(
     anchor="w",
     justify=LEFT,
     font=("Fredoka One", 14),
-    bg='#ffffff',
+    bg='#E8F0FF',
     fg='#000000'
 )
 focus_label.pack(anchor="w", pady=(0, 8))
 
 focus_scale = Scale(
     mood_section,
-    bg='#F4D78E',
+    bg='#F6D36F',
     fg='#000000',
-    troughcolor='#F4D78E',
+    troughcolor='#F6D36F',
     length=1200,
     sliderlength=160,
     variable=focus_var,
@@ -240,16 +240,16 @@ def suggest_settings():
 
 
 # Bottom section - Button
-bottom_section = Frame(assessment_frame, bg='#ffffff')
+bottom_section = Frame(assessment_frame, bg='#E8F0FF')
 bottom_section.pack(side=BOTTOM, anchor=SE, padx=80, pady=60)
 
 suggest_button = Button(
     bottom_section,
     text="Get Suggested Timer",
     font=("Arial", 14, "bold"),
-    bg="#E8B84D",
+    bg="#F4C14A",
     fg='#000000',
-    activebackground="#D4A73D",
+    activebackground="#E0AA32",
     width=25,
     height=2,
     relief=FLAT,
@@ -360,7 +360,7 @@ def finish_timer():
 
     if timer_id:
         root.after_cancel(timer_id)
-    timer_running = False    # noqa
+    timer_running = False
     timer_paused = False
     remaining_time = suggested_time * 60
     timer_label.config(text=format_time(remaining_time))
