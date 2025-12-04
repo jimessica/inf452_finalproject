@@ -16,11 +16,13 @@
 
 from tkinter import *
 
+
 # Create window
 root = Tk()
 root.title("NeuroFlow")
 root.geometry("1400x850")
 root.configure(bg='#E8F0FF')  # soft blueberry background
+
 
 # Global variables
 timer_running = False
@@ -33,8 +35,6 @@ suggested_time = 30
 suggested_font = "IBM Plex Mono"
 suggested_theme = "Blueberry"
 
-on_break = False         # track if current countdown is break
-break_duration = 5 * 60  # 5 minutes
 
 # Theme configurations
 themes = {
@@ -64,6 +64,7 @@ themes = {
     }
 }
 
+
 # Font configurations
 fonts = {
     "Fredoka": "Fredoka One",
@@ -71,7 +72,8 @@ fonts = {
     "IBM Plex Mono": "IBM Plex Mono"
 }
 
-# Reverse mapping
+
+# Reverse mapping for theme IDs
 theme_id_to_name = {1: "Banana", 2: "Blueberry", 3: "Grape"}
 font_name_mapping = {"fredoka": "Fredoka", "crimson": "Crimson Text", "mono": "IBM Plex Mono"}
 
@@ -80,9 +82,13 @@ font_name_mapping = {"fredoka": "Fredoka", "crimson": "Crimson Text", "mono": "I
 assessment_frame = Frame(root, bg='#E8F0FF')
 assessment_frame.pack(expand=True, fill=BOTH)
 
+
+# Top section with title and subtitle
 top_section = Frame(assessment_frame, bg='#E8F0FF')
 top_section.pack(pady=(60, 80))
 
+
+# Main title
 assessment_title = Label(
     top_section,
     text="Welcome to NeuroFlow",
@@ -92,91 +98,129 @@ assessment_title = Label(
 )
 assessment_title.pack()
 
+
+# Subtitle
 subtitle = Label(
     top_section,
     text="Based on your mood, get a suggested study timer!",
-    font=("Fredoka One", 30),
+    font=("Fredoka One", 18),
     bg='#E8F0FF',
     fg='#000000'
 )
 subtitle.pack(pady=(10, 0))
 
+
+# Middle section - Current mood
 mood_section = Frame(assessment_frame, bg='#E8F0FF')
 mood_section.pack(fill=BOTH, padx=80, pady=(0, 40))
+
 
 mood_title = Label(
     mood_section,
     text="Current Mood",
-    font=("Fredoka One", 30, "bold"),
+    font=("Fredoka One", 16, "bold"),
     bg='#E8F0FF',
     fg='#000000',
     anchor="w"
 )
 mood_title.pack(anchor="w", pady=(0, 30))
 
-# Stress scale
+
+# Stress level scale
 stress_var = DoubleVar()
 stress_label = Label(
     mood_section,
     text="Stress level (0 is no stress; 5 is high stress)",
     anchor="w",
     justify=LEFT,
-    font=("Fredoka One", 20),
+    font=("Fredoka One", 14),
     bg='#E8F0FF',
     fg='#000000'
 )
 stress_label.pack(anchor="w", pady=(0, 8))
 
+stress_value_label = Label(
+    mood_section,
+    text="Selected stress level: 0",
+    anchor="w",
+    justify=LEFT,
+    font=("Fredoka One", 12),
+    bg='#E8F0FF',
+    fg='#000000'
+)
+
+stress_value_label.pack(anchor="w", pady=(5,0))
+
+def update_stress_label(value):
+    stress_value_label.config(text=f"Selected stress level: {value}")
+
 stress_scale = Scale(
     mood_section,
-    bg='#F6D36F',
+    bg='#F6D36F',          # slightly richer banana
     fg='#000000',
-    troughcolor='#F6D36F',
+    troughcolor='#FFF3BF',
     length=1200,
     sliderlength=160,
     variable=stress_var,
     from_=0,
     to=5,
     orient=HORIZONTAL,
-    font=("Fredoka One", 20),
+    font=("Fredoka One", 10),
     highlightthickness=0,
     bd=0,
     showvalue=0,
     width=50,
-    relief=FLAT
+    relief=FLAT,
+    command=update_stress_label
 )
 stress_scale.pack(anchor="w", fill=X, pady=(0, 40))
 
-# Focus scale
+
+# Focus level scale
 focus_var = DoubleVar()
 focus_label = Label(
     mood_section,
     text="Focus level (0 is no focus; 5 is high focus)",
     anchor="w",
     justify=LEFT,
-    font=("Fredoka One", 20),
+    font=("Fredoka One", 14),
     bg='#E8F0FF',
     fg='#000000'
 )
 focus_label.pack(anchor="w", pady=(0, 8))
 
+focus_value_label = Label(
+    mood_section,
+    text="Selected focus level: 0",
+    anchor="w",
+    justify=LEFT,
+    font=("Fredoka One", 12),
+    bg='#E8F0FF',
+    fg='#000000'
+)
+focus_value_label.pack(anchor="w", pady=(5,0))
+
+def update_focus_label(value):
+    focus_value_label.config(text=f"Selected focus level: {value}")
+
 focus_scale = Scale(
     mood_section,
     bg='#F6D36F',
     fg='#000000',
-    troughcolor='#F6D36F',
+    troughcolor='#FFF3BF',
     length=1200,
     sliderlength=160,
     variable=focus_var,
     from_=0,
     to=5,
     orient=HORIZONTAL,
-    font=("Fredoka One", 20),
+    font=("Fredoka One", 10),
     highlightthickness=0,
     bd=0,
     showvalue=0,
     width=50,
-    relief=FLAT
+    relief=FLAT,
+    command=update_focus_label
 )
 focus_scale.pack(anchor="w", fill=X)
 
