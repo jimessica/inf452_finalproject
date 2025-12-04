@@ -1,3 +1,4 @@
+
 ##############################################################
 # University of Toronto
 # Faculty of Information
@@ -21,7 +22,7 @@ from tkinter import *
 root = Tk()
 root.title("NeuroFlow")
 root.geometry("1400x850")
-root.configure(bg='#E8F0FF')  # soft blueberry background
+root.configure(bg='#FFFFFF')  # white background
 
 
 # Global variables
@@ -34,31 +35,33 @@ current_font = "IBM Plex Mono"
 suggested_time = 30
 suggested_font = "IBM Plex Mono"
 suggested_theme = "Blueberry"
+on_break = False
+break_duration = 300  # 5 minutes
 
 
 # Theme configurations
 themes = {
     "Banana": {
-        "bg": "#FFF4C2",
-        "timer_bg": "#FFE066",
-        "button_bg": "#FFE066",
-        "button_active": "#FFD700",
+        "bg": "#FFF3BF",
+        "timer_bg": "#F5C856",
+        "button_bg": "#FFF3BF",
+        "button_active": "#F5C856",
         "text": "#000000",
         "id": 1
     },
     "Blueberry": {
-        "bg": "#E8F0FF",
-        "timer_bg": "#5B7FC7",
-        "button_bg": "#E8F0FF",
-        "button_active": "#5B7FC7",
+        "bg": "#DCE4FF",
+        "timer_bg": "#4870C6",
+        "button_bg": "#DCE4FF",
+        "button_active": "#4870C6",
         "text": "#000000",
         "id": 2
     },
     "Grape": {
-        "bg": "#F0E6FF",
-        "timer_bg": "#B19CD9",
-        "button_bg": "#E6D9FF",
-        "button_active": "#B19CD9",
+        "bg": "#DEBEF7",
+        "timer_bg": "#8744BB",
+        "button_bg": "#DEBEF7",
+        "button_active": "#8744BB",
         "text": "#000000",
         "id": 3
     }
@@ -156,7 +159,7 @@ def update_stress_label(value):
 
 stress_scale = Scale(
     mood_section,
-    bg='#F6D36F',          # slightly richer banana
+    bg='#F6D36F',          
     fg='#000000',
     troughcolor='#FFF3BF',
     length=1200,
@@ -280,7 +283,7 @@ def suggest_settings():
 suggest_button = Button(
     bottom_section,
     text="Get Suggested Timer",
-    font=("Arial", 14, "bold"),
+    font=("Fredoka One", 14, "bold"),
     bg="#F4C14A",
     fg='#000000',
     activebackground="#E0AA32",
@@ -293,6 +296,8 @@ suggest_button = Button(
     command=suggest_settings
 )
 suggest_button.pack()
+
+
 
 # ----- Setup content -----
 setup_title = Label(
@@ -315,18 +320,6 @@ suggested_heading = Label(
 )
 suggested_heading.pack(fill=X, padx=80, pady=(0, 5))
 
-# Subtitle below heading
-setup_subtitle = Label(
-    setup_frame,
-    text="Review and adjust your focus time, font, and theme.",
-    font=("Fredoka One", 20),
-    bg='#E8F0FF',
-    fg='#000000',
-    anchor="center",
-    justify="center"
-)
-setup_subtitle.pack(fill=X, padx=80, pady=(0, 15))
-
 # Lighter grey background frame behind middle content
 setup_middle_bg = Frame(setup_frame, bg="#F5F5F5", bd=0)
 setup_middle_bg.pack(fill=BOTH, expand=True, padx=70, pady=(0, 20))
@@ -337,9 +330,21 @@ setup_main.pack(fill=BOTH, expand=True, padx=20, pady=20)
 for c in range(3):
     setup_main.grid_columnconfigure(c, weight=1)
 
+# Subtitle inside grey frame
+setup_subtitle = Label(
+    setup_main,
+    text="Review and adjust your focus time, font, and theme.",
+    font=("Fredoka One", 20),
+    bg='#F5F5F5',
+    fg='#000000',
+    anchor="center",
+    justify="center"
+)
+setup_subtitle.grid(row=0, column=0, columnspan=3, pady=(0, 20))
+
 # Time section
 time_section = Frame(setup_main, bg='#F5F5F5')
-time_section.grid(row=0, column=0, columnspan=3, pady=10, sticky="n")
+time_section.grid(row=1, column=0, columnspan=3, pady=10, sticky="n")
 
 time_label = Label(
     time_section,
@@ -348,7 +353,7 @@ time_label = Label(
     bg='#F5F5F5',
     fg='#000000'
 )
-time_label.pack(pady=(0, 30))
+time_label.pack(pady=(20, 16))
 
 time_buttons_frame = Frame(time_section, bg='#F5F5F5')
 time_buttons_frame.pack()
@@ -364,12 +369,12 @@ for i, t in enumerate(time_options):
         text=f"{t} min",
         variable=selected_time,
         value=t,
-        font=("Arial", 14),
-        bg='#F5F5F5',
+        font=("Fredoka One", 14),
+        bg='#FFF3BF',
         fg='#000000',
-        activebackground="#FFD700",      # yellow when pressed
+        activebackground="#F5C856",      # yellow when pressed
         activeforeground="#000000",
-        selectcolor="#FFD700",           # yellow when selected
+        selectcolor="#F5C856",           # yellow when selected
         indicatoron=False,
         width=10,
         pady=8,
@@ -379,7 +384,7 @@ for i, t in enumerate(time_options):
 
 # Font section
 font_section = Frame(setup_main, bg='#F5F5F5')
-font_section.grid(row=1, column=0, columnspan=3, pady=20, sticky="n")
+font_section.grid(row=2, column=0, columnspan=3, pady=12, sticky="n")
 
 font_label_setup = Label(
     font_section,
@@ -388,7 +393,7 @@ font_label_setup = Label(
     bg='#F5F5F5',
     fg='#000000'
 )
-font_label_setup.pack(pady=(0, 30))
+font_label_setup.pack(pady=(20, 16))
 
 font_buttons_frame = Frame(font_section, bg='#F5F5F5')
 font_buttons_frame.pack()
@@ -403,11 +408,11 @@ for i, (fname, ffont) in enumerate(fonts.items()):
         variable=selected_font,
         value=fname,
         font=(ffont, 14),
-        bg='#F5F5F5',
+        bg='#FFF3BF',
         fg='#000000',
-        activebackground="#FFD700",      # yellow when pressed
+        activebackground="#F5C856",      # yellow when pressed
         activeforeground="#000000",
-        selectcolor="#FFD700",           # yellow when selected
+        selectcolor="#F5C856",           # yellow when selected
         indicatoron=False,
         width=15,
         pady=8,
@@ -417,21 +422,22 @@ for i, (fname, ffont) in enumerate(fonts.items()):
 
 # Theme section
 theme_section = Frame(setup_main, bg='#F5F5F5')
-theme_section.grid(row=2, column=0, columnspan=3, pady=20, sticky="n")
+theme_section.grid(row=3, column=0, columnspan=3, pady=12, sticky="n")
 
 theme_label_setup = Label(
     theme_section,
     text="Theme",
-    font=("Fredoka One", 20, "bold"),
+    font=(fonts[current_font], 20, "bold"),
     bg='#F5F5F5',
     fg='#000000'
 )
-theme_label_setup.pack(pady=(0, 30))
+theme_label_setup.pack(pady=(20, 16))
 
 theme_buttons_frame = Frame(theme_section, bg='#F5F5F5')
 theme_buttons_frame.pack()
 
-theme_display_colors = {"Banana": "#FFE066", "Blueberry": "#5B7FC7", "Grape": "#B19CD9"}
+
+theme_display_colors = {"Banana": "#FFF3BF", "Blueberry": "#DCE4FF", "Grape": "#DEBEF7"}
 
 def select_theme_option(tname):
     selected_theme.set(tname)
@@ -442,7 +448,7 @@ for i, tname in enumerate(themes.keys()):
         text=tname,
         variable=selected_theme,
         value=tname,
-        font=("Arial", 14, "bold"),
+        font=(fonts[current_font], 14, "bold"),
         bg=theme_display_colors[tname],
         fg='#000000',
         activebackground="#FFFFFF",
@@ -465,20 +471,66 @@ def format_time(seconds):
     return f"{mins:02d}:{secs:02d}"
 
 
-# ==================== TIMER SCREEN ====================
-timer_screen = Frame(root, bg='#f5f5f5')
+def apply_theme_to_timer_screen(theme_name):
+    theme = themes[theme_name]
 
-main_frame = Frame(timer_screen, bg='#f5f5f5')
+    # Update backgrounds for the whole screen
+    timer_screen.config(bg=theme["bg"])
+    main_frame.config(bg=theme["bg"])
+    control_frame.config(bg=theme["bg"])
+    inline_panel.config(bg=theme["bg"])
+    inline_header.config(bg=theme["bg"])
+
+    # Timer frame + label colors
+    timer_frame.config(bg=theme["timer_bg"])
+    if theme["id"] == 1:  # Banana
+        timer_text_color = "#000000"
+    else:  # Blueberry or Grape
+        timer_text_color = "#FFFFFF"
+    timer_label.config(bg=theme["timer_bg"], fg=timer_text_color)
+
+    # Top title
+    title_label.config(bg=theme["bg"], fg=theme["text"])
+
+    # Buttons
+    pause_button.config(
+        bg=theme["button_bg"],
+        fg=theme["text"],
+        activebackground=theme["button_active"],
+        activeforeground=theme["text"]
+    )
+    finish_button.config(
+        bg=theme["button_bg"],
+        fg=theme["text"],
+        activebackground=theme["button_active"],
+        activeforeground=theme["text"]
+    )
+
+# ==================== TIMER SCREEN ====================
+timer_screen = Frame(root, bg=themes[current_theme]["bg"])
+
+main_frame = Frame(timer_screen, bg=themes[current_theme]["bg"])
 main_frame.pack(expand=True, fill=BOTH, padx=40, pady=30)
 
 title_label = Label(
     main_frame,
     text="NeuroFlow",
-    font=("Arial", 32, "bold"),
-    bg='#f5f5f5',
+    font=("Fredoka One", 32, "bold"),
+    bg=themes[current_theme]["bg"],
     fg='#000000'
 )
 title_label.pack(pady=(0, 20))
+
+break_timer_label = Label(
+    main_frame,
+    text="Break timer",
+    font=(fonts[current_font], 20, "bold"),
+    bg=themes[current_theme]["bg"],
+    fg='#000000',
+    anchor="w"
+)
+break_timer_label.pack(pady=(0, 10), anchor="w", padx=40)
+break_timer_label.pack_forget()  # Hide by default
 
 timer_frame = Frame(
     main_frame,
@@ -490,25 +542,34 @@ timer_frame = Frame(
 timer_frame.pack(fill=X, pady=20)
 timer_frame.pack_propagate(False)
 
+
+initial_timer_fg = "#000000" if themes[current_theme]["id"] == 1 else "#FFFFFF"
 timer_label = Label(
     timer_frame,
     text="30:00",
     font=(fonts[current_font], 72, "bold"),
     bg=themes[current_theme]["timer_bg"],
-    fg='#FFFFFF'
+    fg=initial_timer_fg
 )
 timer_label.pack(expand=True)
 
-control_frame = Frame(main_frame, bg='#f5f5f5')
+control_frame = Frame(main_frame, bg=themes[current_theme]["bg"])
 control_frame.pack(pady=10)
+
+def get_timer_text_color():
+    """Get timer text color based on theme: black for Banana, white for others."""
+    if themes[current_theme]["id"] == 1:  # Banana
+        return "#000000"
+    else:  # Blueberry or Grape
+        return "#FFFFFF"
 
 def set_timer_bg_running():
     timer_frame.config(bg=themes[current_theme]["timer_bg"])
-    timer_label.config(bg=themes[current_theme]["timer_bg"])
+    timer_label.config(bg=themes[current_theme]["timer_bg"], fg=get_timer_text_color())
 
 def set_timer_bg_paused_or_complete():
-    timer_frame.config(bg="#B0B0B0")
-    timer_label.config(bg="#B0B0B0")
+    timer_frame.config(bg="#797979")
+    timer_label.config(bg="#797979", fg="#FFFFFF")
 
 def start_break():
     """Start a 5-minute break timer after work timer completes."""
@@ -519,6 +580,8 @@ def start_break():
     timer_running = True
     timer_paused = False
     pause_button.config(text="Pause")
+    finish_button.config(text="Start Next Session")
+    break_timer_label.pack(pady=(0, 10), anchor="w", padx=0, before=timer_frame)
     set_timer_bg_running()
     countdown()
 
@@ -540,6 +603,7 @@ def countdown():
             remaining_time = suggested_time * 60
             timer_label.config(text=format_time(remaining_time))
             finish_button.config(text="Start")  # user can start again
+            break_timer_label.pack_forget()
             set_timer_bg_paused_or_complete()
         else:
             # Work session completed; start 5-minute break automatically
@@ -572,34 +636,26 @@ def pause_timer():
         countdown()
 
 def finish_or_start_timer():
-    """Toggle between Finish and Start behavior for work timer."""
+    """Handle Finish button: start break timer or return to normal timer."""
     global timer_running, timer_paused, remaining_time, timer_id, on_break
 
-    # Only allow finish/start logic when not in break
     if on_break:
-        return
-
-    if finish_button.cget("text") == "Finish":
-        # Finish: stop timer, show 0:00, grey background, change to Start
         if timer_id:
             root.after_cancel(timer_id)
-        timer_running = False
-        timer_paused = False
-        remaining_time = 0
-        timer_label.config(text="00:00")
-        set_timer_bg_paused_or_complete()
-        pause_button.config(text="Pause")
-        finish_button.config(text="Start")
-    else:
-        # Start again from initial suggested_time
+        on_break = False
         remaining_time = suggested_time * 60
         timer_label.config(text=format_time(remaining_time))
+        break_timer_label.pack_forget()
         set_timer_bg_running()
-        finish_button.config(text="Finish")
         timer_running = True
         timer_paused = False
         pause_button.config(text="Pause")
+        finish_button.config(text="Finish Session")
         countdown()
+    else:
+        if timer_id:
+            root.after_cancel(timer_id)
+        start_break()
 
 def reset_timer_only():
     """Reset timer to initial time and pause (no navigation)."""
@@ -613,11 +669,11 @@ def reset_timer_only():
     remaining_time = suggested_time * 60
     timer_label.config(text=format_time(remaining_time))
     pause_button.config(text="Pause")
-    finish_button.config(text="Finish")
+    finish_button.config(text="Finish Session")
     set_timer_bg_paused_or_complete()
 
 def return_to_home():
-    """Return to assessment page (start page)."""
+    """Return to assessment page (start page) and reset sliders."""
     global timer_running, timer_paused, remaining_time, timer_id, on_break
     if timer_id:
         root.after_cancel(timer_id)
@@ -629,18 +685,27 @@ def return_to_home():
     remaining_time = suggested_time * 60
     timer_label.config(text=format_time(remaining_time))
     set_timer_bg_paused_or_complete()
+    break_timer_label.pack_forget()
+    # Reset sliders
+    stress_var.set(0)
+    focus_var.set(0)
+    stress_value_label.config(text="Selected stress level: 0")
+    focus_value_label.config(text="Selected focus level: 0")
+    # Hide all other frames
     timer_screen.pack_forget()
+    setup_frame.pack_forget()
+    # Show assessment frame
     assessment_frame.pack(expand=True, fill=BOTH)
 
 # Control buttons: [Return to Home] [Reset] [Pause] [Finish/Start]
 home_button = Button(
     control_frame,
     text="Return to Home",
-    font=("Arial", 14),
-    bg='#FFFFFF',
-    fg='#000000',
-    activebackground='#E0E0E0',
-    activeforeground='#000000',
+    font=(fonts[current_font], 14),
+    bg=themes[current_theme]["button_bg"],
+    fg=themes[current_theme]["text"],
+    activebackground=themes[current_theme]["button_active"],
+    activeforeground=themes[current_theme]["text"],
     width=16,
     height=2,
     relief=RAISED,
@@ -650,27 +715,11 @@ home_button = Button(
 )
 home_button.grid(row=0, column=0, padx=5)
 
-reset_button = Button(
-    control_frame,
-    text="Reset",
-    font=("Arial", 14),
-    bg='#FFFFFF',
-    fg='#000000',
-    activebackground='#E0E0E0',
-    activeforeground='#000000',
-    width=12,
-    height=2,
-    relief=RAISED,
-    bd=2,
-    cursor="hand2",
-    command=reset_timer_only
-)
-reset_button.grid(row=0, column=1, padx=5)
-
+# Button for pausing the timer
 pause_button = Button(
     control_frame,
     text="Pause",
-    font=("Arial", 14),
+    font=(fonts[current_font], 14),
     bg=themes[current_theme]["button_bg"],
     fg=themes[current_theme]["text"],
     activebackground=themes[current_theme]["button_active"],
@@ -682,12 +731,13 @@ pause_button = Button(
     cursor="hand2",
     command=pause_timer
 )
-pause_button.grid(row=0, column=2, padx=5)
+pause_button.grid(row=0, column=1, padx=5)
 
+# Button for finishing the timer
 finish_button = Button(
     control_frame,
-    text="Finish",
-    font=("Arial", 14),
+    text="Finish Session",
+    font=(fonts[current_font], 14),
     bg=themes[current_theme]["button_bg"],
     fg=themes[current_theme]["text"],
     activebackground=themes[current_theme]["button_active"],
@@ -699,21 +749,21 @@ finish_button = Button(
     cursor="hand2",
     command=finish_or_start_timer
 )
-finish_button.grid(row=0, column=3, padx=5)
+finish_button.grid(row=0, column=2, padx=5)
 
 
 # ==================== INLINE CHANGE THEME / OPTIONS UNDER TIMER ====================
-inline_panel = Frame(main_frame, bg='#f0f0f0', relief=FLAT, bd=0)
+inline_panel = Frame(main_frame, bg='#FFFFFF', relief=FLAT, bd=0)
 inline_panel.pack(fill=X, pady=20)
 
-inline_header = Frame(inline_panel, bg='#f0f0f0')
-inline_header.pack(fill=X, padx=20, pady=(10, 0))
+inline_header = Frame(inline_panel, bg='#FFFFFF')
+inline_header.pack(fill=X, padx=20, pady=(10, 10))
 
 inline_label = Label(
     inline_header,
-    text="Adjust Session Options",
-    font=("Fredoka One", 14, "bold"),
-    bg='#E8F0FF',
+    text="Adjust session settings",
+    font=(fonts[current_font], 16, "bold"),
+    bg='#FFFFFF',
     fg='#000000',
     anchor="center",
     justify="center"
@@ -731,10 +781,10 @@ def toggle_inline_panel():
 change_theme_button = Button(
     inline_header,
     text="Change Theme",
-    font=("Arial", 12, "bold"),
+    font=(fonts[current_font], 12, "bold"),
     bg='#FFFFFF',
     fg='#000000',
-    activebackground='#E0E0E0',
+    activebackground='#FFFFFF',
     activeforeground='#000000',
     relief=RAISED,
     bd=2,
@@ -746,32 +796,25 @@ change_theme_button = Button(
 
 change_theme_button.pack(side=RIGHT)
 
-inline_options = Frame(inline_panel, bg='#f0f0f0')
+inline_options = Frame(inline_panel, bg='#FFFFFF')
 
 # Time selector under timer
 inline_time_label = Label(
     inline_options,
     text="Focus Time (min)",
-    font=("Fredoka One", 14, "bold"),
-    bg='#f0f0f0',
+    font=(fonts[current_font], 14, "bold"),
+    bg='#FFFFFF',
     fg='#000000'
 )
 inline_time_label.grid(row=0, column=0, sticky="w", pady=(10, 5))
 
-inline_time_frame = Frame(inline_options, bg='#f0f0f0')
+inline_time_frame = Frame(inline_options, bg='#FFFFFF')
 inline_time_frame.grid(row=1, column=0, sticky="w", pady=(0, 10))
 
 inline_time_var = IntVar(value=suggested_time)
 
 def apply_inline_time(t):
-    global suggested_time, remaining_time, on_break
     inline_time_var.set(t)
-    suggested_time = t
-    remaining_time = t * 60
-    on_break = False
-    timer_label.config(text=format_time(remaining_time))
-    finish_button.config(text="Finish")
-    set_timer_bg_paused_or_complete()
 
 for i, t in enumerate(time_options):
     btn = Radiobutton(
@@ -779,16 +822,15 @@ for i, t in enumerate(time_options):
         text=f"{t} min",
         variable=inline_time_var,
         value=t,
-        font=("Arial", 11),
-        bg='#f0f0f0',
+        font=(fonts[current_font], 11),
+        bg='#FFF3BF',
         fg='#000000',
         activebackground="#FFD700",
         activeforeground="#000000",
         selectcolor="#FFD700",
         indicatoron=False,
         width=8,
-        pady=4,
-        command=lambda v=t: apply_inline_time(v)
+        pady=4
     )
     btn.grid(row=0, column=i, padx=4)
 
@@ -796,22 +838,19 @@ for i, t in enumerate(time_options):
 inline_font_label = Label(
     inline_options,
     text="Font",
-    font=("Fredoka One", 14, "bold"),
-    bg='#f0f0f0',
+    font=(fonts[current_font], 14, "bold"),
+    bg='#FFFFFF',
     fg='#000000'
 )
 inline_font_label.grid(row=2, column=0, sticky="w", pady=(10, 5))
 
-inline_font_frame = Frame(inline_options, bg='#f0f0f0')
+inline_font_frame = Frame(inline_options, bg='#FFFFFF')
 inline_font_frame.grid(row=3, column=0, sticky="w", pady=(0, 10))
 
 inline_font_var = StringVar(value=current_font)
 
 def apply_inline_font(fname):
-    global current_font
     inline_font_var.set(fname)
-    current_font = fname
-    timer_label.config(font=(fonts[current_font], 72, "bold"))
 
 for i, (fname, ffont) in enumerate(fonts.items()):
     btn = Radiobutton(
@@ -820,15 +859,14 @@ for i, (fname, ffont) in enumerate(fonts.items()):
         variable=inline_font_var,
         value=fname,
         font=(ffont, 11),
-        bg='#f0f0f0',
+        bg='#FFF3BF',
         fg='#000000',
         activebackground="#FFD700",
         activeforeground="#000000",
         selectcolor="#FFD700",
         indicatoron=False,
         width=12,
-        pady=4,
-        command=lambda v=fname: apply_inline_font(v)
+        pady=4
     )
     btn.grid(row=0, column=i, padx=4)
 
@@ -836,28 +874,19 @@ for i, (fname, ffont) in enumerate(fonts.items()):
 inline_theme_label = Label(
     inline_options,
     text="Theme",
-    font=("Fredoka One", 14, "bold"),
-    bg='#f0f0f0',
+    font=(fonts[current_font], 14, "bold"),
+    bg='#FFFFFF',
     fg='#000000'
 )
 inline_theme_label.grid(row=4, column=0, sticky="w", pady=(10, 5))
 
-inline_theme_frame = Frame(inline_options, bg='#f0f0f0')
+inline_theme_frame = Frame(inline_options, bg='#FFFFFF')
 inline_theme_frame.grid(row=5, column=0, sticky="w", pady=(0, 10))
 
 inline_theme_var = StringVar(value=current_theme)
 
 def apply_inline_theme(tname):
-    global current_theme
     inline_theme_var.set(tname)
-    current_theme = tname
-    timer_frame.config(bg=themes[current_theme]["timer_bg"])
-    timer_label.config(bg=themes[current_theme]["timer_bg"])
-    main_frame.config(bg=themes[current_theme]["bg"])
-    timer_screen.config(bg=themes[current_theme]["bg"])
-    theme = themes[current_theme]
-    for btn in [finish_button, pause_button, reset_button, home_button]:
-        btn.config(bg=theme["button_bg"], activebackground=theme["button_active"], fg=theme["text"])
 
 for i, tname in enumerate(themes.keys()):
     btn = Radiobutton(
@@ -865,7 +894,7 @@ for i, tname in enumerate(themes.keys()):
         text=tname,
         variable=inline_theme_var,
         value=tname,
-        font=("Arial", 11, "bold"),
+        font=(fonts[current_font], 11, "bold"),
         bg=theme_display_colors[tname],
         fg='#000000',
         activebackground="#FFFFFF",
@@ -873,10 +902,73 @@ for i, tname in enumerate(themes.keys()):
         selectcolor="#FFFFFF",
         indicatoron=False,
         width=12,
-        pady=4,
-        command=lambda v=tname: apply_inline_theme(v)
+        pady=4
     )
     btn.grid(row=0, column=i, padx=4)
+
+def save_inline_settings():
+    """Apply all inline settings when Save button is clicked."""
+    global suggested_time, current_font, current_theme, remaining_time, on_break, timer_running, timer_id
+    
+    # Get selected values
+    new_time = inline_time_var.get()
+    new_font = inline_font_var.get()
+    new_theme = inline_theme_var.get()
+    
+    # Apply time setting only if it changed
+    time_changed = (new_time != suggested_time)
+    suggested_time = new_time
+    
+    if time_changed:
+        # Only reset timer if time setting changed
+        remaining_time = new_time * 60
+        on_break = False
+        timer_label.config(text=format_time(remaining_time))
+        finish_button.config(text="Finish Session")
+    else:
+        # Time didn't change, just update the display with current remaining_time
+        timer_label.config(text=format_time(remaining_time))
+    
+    # Apply font setting
+    current_font = new_font
+    timer_label.config(font=(fonts[current_font], 72, "bold"))
+    
+    # Apply theme setting
+    current_theme = new_theme
+    timer_frame.config(bg=themes[current_theme]["timer_bg"])
+    timer_label.config(bg=themes[current_theme]["timer_bg"], fg=get_timer_text_color())
+    main_frame.config(bg=themes[current_theme]["bg"])
+    timer_screen.config(bg=themes[current_theme]["bg"])
+    title_label.config(bg=themes[current_theme]["bg"], fg=themes[current_theme]["text"])
+    break_timer_label.config(bg=themes[current_theme]["bg"], fg=themes[current_theme]["text"])
+    control_frame.config(bg=themes[current_theme]["bg"])
+    theme = themes[current_theme]
+    for btn in [finish_button, pause_button, home_button]:
+        btn.config(bg=theme["button_bg"], activebackground=theme["button_active"], fg=theme["text"])
+    
+    # Set timer background based on running state
+    if timer_running:
+        set_timer_bg_running()
+    else:
+        set_timer_bg_paused_or_complete()
+
+# Save settings button
+save_settings_button = Button(
+    inline_options,
+    text="Save settings",
+    font=("Fredoka One", 14, "bold"),
+    bg='#F4C14A',
+    fg='#000000',
+    activebackground="#E0AA32",
+    activeforeground="#000000",
+    width=20,
+    height=2,
+    relief=RAISED,
+    bd=2,
+    cursor="hand2",
+    command=save_inline_settings
+)
+save_settings_button.grid(row=6, column=0, pady=(20, 10), padx=0)
 
 def apply_inline_theme_from_values():
     inline_time_var.set(suggested_time)
@@ -901,14 +993,18 @@ def start_session_from_setup():
     timer_label.config(
         text=format_time(remaining_time),
         font=(fonts[current_font], 72, "bold"),
-        bg=themes[current_theme]["timer_bg"]
+        bg=themes[current_theme]["timer_bg"],
+        fg=get_timer_text_color()
     )
     timer_frame.config(bg=themes[current_theme]["timer_bg"])
     main_frame.config(bg=themes[current_theme]["bg"])
     timer_screen.config(bg=themes[current_theme]["bg"])
+    title_label.config(bg=themes[current_theme]["bg"], fg=themes[current_theme]["text"])
+    break_timer_label.config(bg=themes[current_theme]["bg"], fg=themes[current_theme]["text"])
+    control_frame.config(bg=themes[current_theme]["bg"])
 
     theme = themes[current_theme]
-    for btn in [finish_button, pause_button, reset_button, home_button]:
+    for btn in [finish_button, pause_button, home_button]:
         btn.config(bg=theme["button_bg"], activebackground=theme["button_active"], fg=theme["text"])
 
     apply_inline_theme_from_values()
@@ -916,12 +1012,12 @@ def start_session_from_setup():
     setup_frame.pack_forget()
     timer_screen.pack(expand=True, fill=BOTH)
 
-    finish_button.config(text="Finish")
+    finish_button.config(text="Finish Session")
     start_timer()
 
 start_button = Button(
     setup_bottom,
-    text="Start Timer",
+    text="Start timer",
     font=("Fredoka One", 18, "bold"),
     bg="#F4C14A",
     fg="#000000",
