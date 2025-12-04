@@ -38,9 +38,10 @@ NeuroFlow is an interactive desktop application designed to assist users, partic
 
 ### User Interface
 1. Minimalistic Design: The application features a simple and intuitive graphical user interface that minimizes distractions.
-2. Accessibility Options: NeuroFlow emphasizes inclusivity with options to:
-  - Change font type, size, and color contrast
-  - Activate sensory-friendly modes to reduce visual clutter
+2. Accessibility Options: NeuroFlow emphasizes inclusivity with:
+  - Ability to change font type, size, and color contrast at any time
+  - Automatic break timers after the time is up
+  - High color contrast the passes WCAG AAAA
 
 ### Focus Session Plan
 1. The application generates a customized focus session plan by setting timer length, font, and colour palette. 
