@@ -1,4 +1,3 @@
-
 ##############################################################
 # University of Toronto
 # Faculty of Information
@@ -17,13 +16,11 @@
 
 from tkinter import *
 
-
 # Create window
 root = Tk()
 root.title("NeuroFlow")
 root.geometry("1400x850")
 root.configure(bg='#FFFFFF')  # white background
-
 
 # Global variables
 timer_running = False
@@ -37,7 +34,7 @@ suggested_font = "IBM Plex Mono"
 suggested_theme = "Blueberry"
 on_break = False
 break_duration = 300  # 5 minutes
-
+inline_open = False  # track whether the inline panel is open
 
 # Theme configurations
 themes = {
@@ -67,7 +64,6 @@ themes = {
     }
 }
 
-
 # Font configurations
 fonts = {
     "Fredoka": "Fredoka One",
@@ -75,21 +71,19 @@ fonts = {
     "IBM Plex Mono": "IBM Plex Mono"
 }
 
-
 # Reverse mapping for theme IDs
 theme_id_to_name = {1: "Banana", 2: "Blueberry", 3: "Grape"}
 font_name_mapping = {"fredoka": "Fredoka", "crimson": "Crimson Text", "mono": "IBM Plex Mono"}
 
-
 # ==================== ASSESSMENT SCREEN ====================
+# Initial screen where users input their mood (stress and focus levels)
+# to receive personalized timer suggestions
 assessment_frame = Frame(root, bg='#E8F0FF')
 assessment_frame.pack(expand=True, fill=BOTH)
-
 
 # Top section with title and subtitle
 top_section = Frame(assessment_frame, bg='#E8F0FF')
 top_section.pack(pady=(60, 80))
-
 
 # Main title
 assessment_title = Label(
@@ -101,7 +95,6 @@ assessment_title = Label(
 )
 assessment_title.pack()
 
-
 # Subtitle
 subtitle = Label(
     top_section,
@@ -112,11 +105,9 @@ subtitle = Label(
 )
 subtitle.pack(pady=(10, 0))
 
-
 # Middle section - Current mood
 mood_section = Frame(assessment_frame, bg='#E8F0FF')
 mood_section.pack(fill=BOTH, padx=80, pady=(0, 40))
-
 
 mood_title = Label(
     mood_section,
@@ -127,7 +118,6 @@ mood_title = Label(
     anchor="w"
 )
 mood_title.pack(anchor="w", pady=(0, 30))
-
 
 # Stress level scale
 stress_var = DoubleVar()
@@ -151,15 +141,20 @@ stress_value_label = Label(
     bg='#E8F0FF',
     fg='#000000'
 )
-
-stress_value_label.pack(anchor="w", pady=(5,0))
+stress_value_label.pack(anchor="w", pady=(5, 0))
 
 def update_stress_label(value):
+    """
+    Update the stress level display label when slider value changes.
+    
+    Args:
+        value: The current stress level value (0-5)
+    """
     stress_value_label.config(text=f"Selected stress level: {value}")
 
 stress_scale = Scale(
     mood_section,
-    bg='#F6D36F',          
+    bg='#F6D36F',
     fg='#000000',
     troughcolor='#FFF3BF',
     length=1200,
@@ -177,7 +172,6 @@ stress_scale = Scale(
     command=update_stress_label
 )
 stress_scale.pack(anchor="w", fill=X, pady=(0, 40))
-
 
 # Focus level scale
 focus_var = DoubleVar()
@@ -201,9 +195,15 @@ focus_value_label = Label(
     bg='#E8F0FF',
     fg='#000000'
 )
-focus_value_label.pack(anchor="w", pady=(5,0))
+focus_value_label.pack(anchor="w", pady=(5, 0))
 
 def update_focus_label(value):
+    """
+    Update the focus level display label when slider value changes.
+    
+    Args:
+        value: The current focus level value (0-5)
+    """
     focus_value_label.config(text=f"Selected focus level: {value}")
 
 focus_scale = Scale(
@@ -227,8 +227,9 @@ focus_scale = Scale(
 )
 focus_scale.pack(anchor="w", fill=X)
 
-
 # ==================== SESSION SETUP SCREEN ====================
+# Screen where users review and adjust suggested timer settings
+# before starting their study session
 setup_frame = Frame(root, bg='#E8F0FF')
 
 selected_time = IntVar(value=suggested_time)
@@ -236,11 +237,19 @@ selected_font = StringVar(value=suggested_font)
 selected_theme = StringVar(value=suggested_theme)
 
 def update_setup_selections():
+    """
+    Update setup screen button selections to match suggested values.
+    Called when navigating to setup screen to ensure UI reflects current suggestions.
+    """
     selected_time.set(suggested_time)
     selected_font.set(suggested_font)
     selected_theme.set(suggested_theme)
 
 def go_to_setup_screen():
+    """
+    Navigate from assessment screen to setup screen.
+    Updates setup screen selections to match suggested values.
+    """
     update_setup_selections()
     assessment_frame.pack_forget()
     setup_frame.pack(expand=True, fill=BOTH)
@@ -249,14 +258,27 @@ bottom_section = Frame(assessment_frame, bg='#E8F0FF')
 bottom_section.pack(side=BOTTOM, anchor=SE, padx=80, pady=60)
 
 def suggest_settings():
+    """
+    Generate personalized timer settings based on user's stress and focus levels.
+    
+    Algorithm:
+    - High stress (>=3) and high focus (>=3): 45 min, mono font, Grape theme
+    - Low stress (<3) and high focus (>=3): 30 min, crimson font, Blueberry theme
+    - High stress (>=3) and low focus (<3): 20 min, mono font, Banana theme
+    - Low stress (<3) and low focus (<3): 15 min, fredoka font, Blueberry theme
+    
+    After calculating suggestions, opens the setup screen.
+    """
     global suggested_time, suggested_font, suggested_theme
     stress_score = stress_var.get()
     focus_score = focus_var.get()
 
+    # Default values
     time = 30
     font = "mono"
     theme = 2
 
+    # Determine settings based on stress and focus levels
     if stress_score >= 3 and focus_score >= 3:
         time = 45
         font = "mono"
@@ -296,8 +318,6 @@ suggest_button = Button(
     command=suggest_settings
 )
 suggest_button.pack()
-
-
 
 # ----- Setup content -----
 setup_title = Label(
@@ -361,6 +381,9 @@ time_buttons_frame.pack()
 time_options = [15, 20, 30, 45]
 
 def select_time(t):
+    """
+    Update selected time variable when user clicks a time option.
+    """
     selected_time.set(t)
 
 for i, t in enumerate(time_options):
@@ -372,9 +395,9 @@ for i, t in enumerate(time_options):
         font=("Fredoka One", 14),
         bg='#FFF3BF',
         fg='#000000',
-        activebackground="#F5C856",      # yellow when pressed
+        activebackground="#F5C856",
         activeforeground="#000000",
-        selectcolor="#F5C856",           # yellow when selected
+        selectcolor="#F5C856",
         indicatoron=False,
         width=10,
         pady=8,
@@ -399,6 +422,9 @@ font_buttons_frame = Frame(font_section, bg='#F5F5F5')
 font_buttons_frame.pack()
 
 def select_font_option(fname):
+    """
+    Update selected font variable when user clicks a font option.
+    """
     selected_font.set(fname)
 
 for i, (fname, ffont) in enumerate(fonts.items()):
@@ -410,9 +436,9 @@ for i, (fname, ffont) in enumerate(fonts.items()):
         font=(ffont, 14),
         bg='#FFF3BF',
         fg='#000000',
-        activebackground="#F5C856",      # yellow when pressed
+        activebackground="#F5C856",
         activeforeground="#000000",
-        selectcolor="#F5C856",           # yellow when selected
+        selectcolor="#F5C856",
         indicatoron=False,
         width=15,
         pady=8,
@@ -436,10 +462,12 @@ theme_label_setup.pack(pady=(20, 16))
 theme_buttons_frame = Frame(theme_section, bg='#F5F5F5')
 theme_buttons_frame.pack()
 
-
 theme_display_colors = {"Banana": "#FFF3BF", "Blueberry": "#DCE4FF", "Grape": "#DEBEF7"}
 
 def select_theme_option(tname):
+    """
+    Update selected theme variable when user clicks a theme option.
+    """
     selected_theme.set(tname)
 
 for i, tname in enumerate(themes.keys()):
@@ -466,47 +494,42 @@ setup_bottom = Frame(setup_frame, bg='#E8F0FF', height=80)
 setup_bottom.pack(fill=X, pady=40)
 
 def format_time(seconds):
+    """
+    Convert seconds to MM:SS format string.        
+    Returns:
+        str: Formatted time string (e.g., "30:00", "05:30")
+    """
     mins = seconds // 60
     secs = seconds % 60
     return f"{mins:02d}:{secs:02d}"
 
-
-def apply_theme_to_timer_screen(theme_name):
-    theme = themes[theme_name]
-
-    # Update backgrounds for the whole screen
-    timer_screen.config(bg=theme["bg"])
-    main_frame.config(bg=theme["bg"])
-    control_frame.config(bg=theme["bg"])
-    inline_panel.config(bg=theme["bg"])
-    inline_header.config(bg=theme["bg"])
-
-    # Timer frame + label colors
-    timer_frame.config(bg=theme["timer_bg"])
-    if theme["id"] == 1:  # Banana
-        timer_text_color = "#000000"
+def get_timer_text_color():
+    """
+    Get timer text color based on theme: black for Banana, white for others.
+    """
+    if themes[current_theme]["id"] == 1:  # Banana
+        return "#000000"
     else:  # Blueberry or Grape
-        timer_text_color = "#FFFFFF"
-    timer_label.config(bg=theme["timer_bg"], fg=timer_text_color)
+        return "#FFFFFF"
 
-    # Top title
-    title_label.config(bg=theme["bg"], fg=theme["text"])
+def set_timer_bg_running():
+    """
+    Update timer visual appearance to running state.
+    Sets timer background to theme color and text color based on theme.
+    """
+    timer_frame.config(bg=themes[current_theme]["timer_bg"])
+    timer_label.config(bg=themes[current_theme]["timer_bg"], fg=get_timer_text_color())
 
-    # Buttons
-    pause_button.config(
-        bg=theme["button_bg"],
-        fg=theme["text"],
-        activebackground=theme["button_active"],
-        activeforeground=theme["text"]
-    )
-    finish_button.config(
-        bg=theme["button_bg"],
-        fg=theme["text"],
-        activebackground=theme["button_active"],
-        activeforeground=theme["text"]
-    )
+def set_timer_bg_paused_or_complete():
+    """
+    Update timer visual appearance to paused/completed state.
+    Sets timer background to grey (#797979).
+    """
+    timer_frame.config(bg="#797979")
+    timer_label.config(bg="#797979", fg="#FFFFFF")
 
 # ==================== TIMER SCREEN ====================
+# Main timer interface with countdown display, control buttons, and inline settings
 timer_screen = Frame(root, bg=themes[current_theme]["bg"])
 
 main_frame = Frame(timer_screen, bg=themes[current_theme]["bg"])
@@ -542,7 +565,6 @@ timer_frame = Frame(
 timer_frame.pack(fill=X, pady=20)
 timer_frame.pack_propagate(False)
 
-
 initial_timer_fg = "#000000" if themes[current_theme]["id"] == 1 else "#FFFFFF"
 timer_label = Label(
     timer_frame,
@@ -556,23 +578,11 @@ timer_label.pack(expand=True)
 control_frame = Frame(main_frame, bg=themes[current_theme]["bg"])
 control_frame.pack(pady=10)
 
-def get_timer_text_color():
-    """Get timer text color based on theme: black for Banana, white for others."""
-    if themes[current_theme]["id"] == 1:  # Banana
-        return "#000000"
-    else:  # Blueberry or Grape
-        return "#FFFFFF"
-
-def set_timer_bg_running():
-    timer_frame.config(bg=themes[current_theme]["timer_bg"])
-    timer_label.config(bg=themes[current_theme]["timer_bg"], fg=get_timer_text_color())
-
-def set_timer_bg_paused_or_complete():
-    timer_frame.config(bg="#797979")
-    timer_label.config(bg="#797979", fg="#FFFFFF")
-
 def start_break():
-    """Start a 5-minute break timer after work timer completes."""
+    """
+    Start a 5-minute break timer after work timer completes.
+    Updates UI to show break timer label and changes button text to "Start Next Session".
+    """
     global on_break, remaining_time, timer_running, timer_paused
     on_break = True
     remaining_time = break_duration
@@ -586,7 +596,14 @@ def start_break():
     countdown()
 
 def countdown():
-    """Main countdown logic for both work and break timers."""
+    """
+    Main countdown logic for both work and break timers.
+    
+    Reduces remaining_time by 1 second every second while timer is running.
+    When timer reaches zero:
+    - If on break: resets to work timer and pauses
+    - If work session: automatically starts break timer
+    """
     global remaining_time, timer_id, timer_running, on_break, suggested_time
 
     if timer_running and remaining_time > 0:
@@ -596,21 +613,22 @@ def countdown():
     elif remaining_time <= 0:
         timer_label.config(text="00:00")
         timer_running = False
-
         if on_break:
-            # Break is done; reset to suggested work time and pause
             on_break = False
             remaining_time = suggested_time * 60
             timer_label.config(text=format_time(remaining_time))
-            finish_button.config(text="Start")  # user can start again
+            finish_button.config(text="Start")
             break_timer_label.pack_forget()
             set_timer_bg_paused_or_complete()
         else:
-            # Work session completed; start 5-minute break automatically
             set_timer_bg_paused_or_complete()
             start_break()
 
 def start_timer():
+    """
+    Start the countdown timer if it's not already running and time remains.
+    Updates UI to show running state and begins countdown.
+    """
     global timer_running, timer_paused, timer_id, on_break
     if not timer_running and remaining_time > 0:
         timer_running = True
@@ -620,8 +638,23 @@ def start_timer():
         countdown()
 
 def pause_timer():
+    """
+    Toggle timer between paused and running states.
+    
+    Handles three states:
+    - Stopped: Starts timer if time remains
+    - Running: Pauses timer, cancels countdown, updates UI to paused state
+    - Paused: Resumes timer, updates UI to running state, restarts countdown
+    """
     global timer_running, timer_paused, timer_id
-    if timer_running:
+    # Initial Start from stopped state
+    if not timer_running and not timer_paused and remaining_time > 0:
+        timer_running = True
+        timer_paused = False
+        pause_button.config(text="Pause")
+        set_timer_bg_running()
+        countdown()
+    elif timer_running:
         timer_running = False
         timer_paused = True
         pause_button.config(text="Resume")
@@ -636,7 +669,12 @@ def pause_timer():
         countdown()
 
 def finish_or_start_timer():
-    """Handle Finish button: start break timer or return to normal timer."""
+    """
+    Finish button: start break timer or return to normal timer.
+    
+    - If on break: Returns to normal timer with same settings and starts automatically
+    - If on work timer: Starts break timer immediately
+    """
     global timer_running, timer_paused, remaining_time, timer_id, on_break
 
     if on_break:
@@ -658,7 +696,9 @@ def finish_or_start_timer():
         start_break()
 
 def reset_timer_only():
-    """Reset timer to initial time and pause (no navigation)."""
+    """
+    Resets timer to initial suggested time and pause state.
+    """
     global timer_running, timer_paused, remaining_time, timer_id, on_break
     if timer_id:
         root.after_cancel(timer_id)
@@ -668,36 +708,47 @@ def reset_timer_only():
     timer_paused = False
     remaining_time = suggested_time * 60
     timer_label.config(text=format_time(remaining_time))
-    pause_button.config(text="Pause")
+    pause_button.config(text="Start")
     finish_button.config(text="Finish Session")
     set_timer_bg_paused_or_complete()
 
 def return_to_home():
-    """Return to assessment page (start page) and reset sliders."""
-    global timer_running, timer_paused, remaining_time, timer_id, on_break
+    """
+    Return to assessment page and reset all states.
+    
+    Resets sliders to 0, closes inline options panel, stops any running timers,
+    and navigates back to the assessment screen.
+    """
+    global timer_running, timer_paused, remaining_time, timer_id, on_break, inline_open
     if timer_id:
         root.after_cancel(timer_id)
         timer_id = None
     on_break = False
     timer_running = False
     timer_paused = False
-    pause_button.config(text="Pause")
+    pause_button.config(text="Start")
     remaining_time = suggested_time * 60
     timer_label.config(text=format_time(remaining_time))
     set_timer_bg_paused_or_complete()
     break_timer_label.pack_forget()
+
+    # close inline options + reset button text/state
+    inline_options.pack_forget()
+    change_theme_button.config(text="Change Theme")
+    inline_open = False
+
     # Reset sliders
     stress_var.set(0)
     focus_var.set(0)
     stress_value_label.config(text="Selected stress level: 0")
     focus_value_label.config(text="Selected focus level: 0")
-    # Hide all other frames
+
+    # Hide other frames and show assessment
     timer_screen.pack_forget()
     setup_frame.pack_forget()
-    # Show assessment frame
     assessment_frame.pack(expand=True, fill=BOTH)
 
-# Control buttons: [Return to Home] [Reset] [Pause] [Finish/Start]
+# Control buttons: [Return to Home] [Pause/Start] [Finish/Start]
 home_button = Button(
     control_frame,
     text="Return to Home",
@@ -715,7 +766,6 @@ home_button = Button(
 )
 home_button.grid(row=0, column=0, padx=5)
 
-# Button for pausing the timer
 pause_button = Button(
     control_frame,
     text="Pause",
@@ -733,7 +783,6 @@ pause_button = Button(
 )
 pause_button.grid(row=0, column=1, padx=5)
 
-# Button for finishing the timer
 finish_button = Button(
     control_frame,
     text="Finish Session",
@@ -751,8 +800,9 @@ finish_button = Button(
 )
 finish_button.grid(row=0, column=2, padx=5)
 
-
 # ==================== INLINE CHANGE THEME / OPTIONS UNDER TIMER ====================
+# Collapsible panel for adjusting timer settings without leaving the timer screen
+# Includes time, font, and theme selectors
 inline_panel = Frame(main_frame, bg='#FFFFFF', relief=FLAT, bd=0)
 inline_panel.pack(fill=X, pady=20)
 
@@ -771,12 +821,19 @@ inline_label = Label(
 inline_label.pack(side=LEFT)
 
 def toggle_inline_panel():
-    if inline_options.winfo_viewable():
+    """
+    Toggle the inline settings panel visibility.
+    Shows/hides the settings options and updates button text accordingly.
+    """
+    global inline_open
+    if inline_open:
         inline_options.pack_forget()
         change_theme_button.config(text="Change Theme")
+        inline_open = False
     else:
         inline_options.pack(fill=X, padx=20, pady=10)
         change_theme_button.config(text="Hide Options")
+        inline_open = True
 
 change_theme_button = Button(
     inline_header,
@@ -793,7 +850,6 @@ change_theme_button = Button(
     cursor="hand2",
     command=toggle_inline_panel
 )
-
 change_theme_button.pack(side=RIGHT)
 
 inline_options = Frame(inline_panel, bg='#FFFFFF')
@@ -814,6 +870,10 @@ inline_time_frame.grid(row=1, column=0, sticky="w", pady=(0, 10))
 inline_time_var = IntVar(value=suggested_time)
 
 def apply_inline_time(t):
+    """
+    Update the inline time selection variable.
+    Only updates the variable; settings are applied when "Save settings" is clicked.
+    """
     inline_time_var.set(t)
 
 for i, t in enumerate(time_options):
@@ -850,6 +910,10 @@ inline_font_frame.grid(row=3, column=0, sticky="w", pady=(0, 10))
 inline_font_var = StringVar(value=current_font)
 
 def apply_inline_font(fname):
+    """
+    Update the inline font selection variable.
+    Only updates the variable; settings are applied when "Save settings" is clicked.
+    """
     inline_font_var.set(fname)
 
 for i, (fname, ffont) in enumerate(fonts.items()):
@@ -886,6 +950,10 @@ inline_theme_frame.grid(row=5, column=0, sticky="w", pady=(0, 10))
 inline_theme_var = StringVar(value=current_theme)
 
 def apply_inline_theme(tname):
+    """
+    Update the inline theme selection variable.
+    Only updates the variable; settings are applied when "Save settings" is clicked.
+    """
     inline_theme_var.set(tname)
 
 for i, tname in enumerate(themes.keys()):
@@ -907,33 +975,34 @@ for i, tname in enumerate(themes.keys()):
     btn.grid(row=0, column=i, padx=4)
 
 def save_inline_settings():
-    """Apply all inline settings when Save button is clicked."""
-    global suggested_time, current_font, current_theme, remaining_time, on_break, timer_running, timer_id
+    """
+    Apply all settings when Save button is clicked.
     
-    # Get selected values
+    Only resets timer if time setting has changed. If time is unchanged,
+    timer continues.
+    """
+    global suggested_time, current_font, current_theme, remaining_time, on_break, timer_running, timer_id
+
+    # Get selected values from inline panel
     new_time = inline_time_var.get()
     new_font = inline_font_var.get()
     new_theme = inline_theme_var.get()
-    
-    # Apply time setting only if it changed
+
+    # Check if time setting changed
     time_changed = (new_time != suggested_time)
     suggested_time = new_time
-    
+
     if time_changed:
-        # Only reset timer if time setting changed
         remaining_time = new_time * 60
         on_break = False
         timer_label.config(text=format_time(remaining_time))
         finish_button.config(text="Finish Session")
     else:
-        # Time didn't change, just update the display with current remaining_time
         timer_label.config(text=format_time(remaining_time))
-    
-    # Apply font setting
+
     current_font = new_font
     timer_label.config(font=(fonts[current_font], 72, "bold"))
-    
-    # Apply theme setting
+
     current_theme = new_theme
     timer_frame.config(bg=themes[current_theme]["timer_bg"])
     timer_label.config(bg=themes[current_theme]["timer_bg"], fg=get_timer_text_color())
@@ -945,8 +1014,7 @@ def save_inline_settings():
     theme = themes[current_theme]
     for btn in [finish_button, pause_button, home_button]:
         btn.config(bg=theme["button_bg"], activebackground=theme["button_active"], fg=theme["text"])
-    
-    # Set timer background based on running state
+
     if timer_running:
         set_timer_bg_running()
     else:
@@ -971,15 +1039,18 @@ save_settings_button = Button(
 save_settings_button.grid(row=6, column=0, pady=(20, 10), padx=0)
 
 def apply_inline_theme_from_values():
+    """
+    Initialize inline settings panel variables to match current timer settings.
+    """
     inline_time_var.set(suggested_time)
     inline_font_var.set(current_font)
     inline_theme_var.set(current_theme)
 
-
 def start_session_from_setup():
-    """Apply selections, go to timer screen, and start timer immediately."""
+    """Apply selections, go to timer screen, and show timer stopped until Start is clicked."""
     global suggested_time, suggested_font, suggested_theme
     global current_theme, current_font, remaining_time, on_break
+    global timer_running, timer_paused
 
     suggested_time = selected_time.get()
     suggested_font = selected_font.get()
@@ -989,6 +1060,8 @@ def start_session_from_setup():
     current_font = suggested_font
     remaining_time = suggested_time * 60
     on_break = False
+    timer_running = False
+    timer_paused = False
 
     timer_label.config(
         text=format_time(remaining_time),
@@ -1013,7 +1086,8 @@ def start_session_from_setup():
     timer_screen.pack(expand=True, fill=BOTH)
 
     finish_button.config(text="Finish Session")
-    start_timer()
+    pause_button.config(text="Start")      # show Start initially
+    set_timer_bg_paused_or_complete()      # grey until started
 
 start_button = Button(
     setup_bottom,
